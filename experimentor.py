@@ -35,8 +35,11 @@ class Experimentor(object):
 
         # Create directory with experiment name
         self.result_path = os.path.join(os.getcwd(), 'results', exp_name)
+        self.model_path = os.path.join(self.result_path, 'models')
         if not os.path.exists(self.result_path):
             os.makedirs(self.result_path)
+        if not os.path.exists(self.model_path):
+            os.makedirs(self.model_path)
 
         # Training and test data holders
         self.X_train = data.X_train
@@ -147,7 +150,7 @@ class Experimentor(object):
 
                 f.write(f"{clf_name}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\n")
 
-    def classify_with_augmentation(self):
+    def classify_with_non_DL_augmentation(self):
          # Time stamp
         start_time = time.time()
 
@@ -174,6 +177,37 @@ class Experimentor(object):
                     f.write(f"{clf_name}\t{self.aug_rates[i]}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\n")
         
         print(f"--- Classified with {self.aug_name} augmentation in {round(time.time() - start_time, 2)} seconds ---")
+
+    def classify_with_wGAN_augmentation(self):
+         # Time stamp
+        start_time = time.time()
+
+        max_gans = len(self.X_augs)
+
+        with open(os.path.join(self.result_path, self.aug_name + f'Aug.txt'), "w") as f:
+            # Write result header
+            f.write("NumGANs\tClf  \tAugRate\tAUROC\tAUPRC\tACC  \tREC  \tPRE  \tF1  \n")
+            for g in range(max_gans):
+                for clf, clf_name in zip(self.classifiers, self.classifier_names):
+                    for i in range(len(self.aug_rates)):
+                        clf.fit(self.X_train_augs[g][i], self.y_train_augs[g][i])
+                        y_pred = clf.predict(self.X_test)
+                        y_prob = clf.predict_proba(self.X_test)
+
+                        precisions, recalls, _ = precision_recall_curve(self.y_test, y_prob[:, 1])
+
+                        # Performance Metrics : AUROC, AUPRC, ACC, Recall, Precision, F1
+                        auroc = round(roc_auc_score(self.y_test, y_prob[:, 1]), 3)
+                        auprc = round(auc(recalls, precisions), 3)
+                        acc = round(accuracy_score(self.y_test, y_pred), 3)
+                        rec = round(recall_score(self.y_test, y_pred), 3)
+                        pre = round(precision_score(self.y_test, y_pred), 3)
+                        f1 = round(f1_score(self.y_test, y_pred), 3)
+
+                        f.write(f"{g+1}\t{clf_name}\t{self.aug_rates[i]}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\n")
+        
+        print(f"--- Classified with {self.aug_name} augmentation in {round(time.time() - start_time, 2)} seconds ---")
+
 
 
 
