@@ -66,7 +66,7 @@ class Experimentor(object):
         self._select_feature()
 
         # Distribution
-        #self._draw_histogram(Xs=[self.X_train, self.X_test], Xs_labels=["X_train", "X_test"])
+        #self.draw_histogram(Xs=[self.X_train, self.X_test], Xs_labels=["X_train", "X_test"])
 
         # Viz
         #self.visualize(X_train=self.X_train, y_train=self.y_train, X_test=self.X_test, y_test=self.y_test)
@@ -85,13 +85,13 @@ class Experimentor(object):
         self.X_train = model.transform(self.X_train)
         self.X_test = model.transform(self.X_test)
 
-    def _draw_histogram(self, Xs : list, Xs_labels : list):
+    def draw_histogram(self, Xs : list, Xs_labels : list):
         num_Xs = len(Xs)
         fig, axs = plt.subplots(num_Xs, figsize=(15, 4 * num_Xs))
         for i in range(num_Xs):
             axs[i].hist(Xs[i].flatten(), bins='auto')
             axs[i].text(x=0.02, y=0.9, s=Xs_labels[i], transform=axs[i].transAxes)
-        plt.show()
+        plt.savefig(os.path.join(self.result_path, self.aug_name + 'Dist.png'))
 
     def visualize(self, X_train, y_train, X_test, y_test, lower_bound=-5, upper_bound=5):
         # Sort data by class label
@@ -127,6 +127,50 @@ class Experimentor(object):
 
         # Show figure
         plt.show()
+
+    def visualize_aug(self, X_train, y_train, X_test, y_test, X_aug, y_aug, lower_bound=-5, upper_bound=5):
+        # Sort data by class label
+        idx = np.argsort(y_train)
+        X_train_sorted = X_train[idx]
+        y_train_sorted = y_train[idx]
+        idx = np.argsort(y_test)
+        X_test_sorted = X_test[idx]
+        y_test_sorted = y_test[idx]
+        idx = np.argsort(y_aug)
+        X_aug_sorted = X_aug[idx]
+        y_aug_sorted = y_aug[idx]
+
+        # Get the number of unique class labels and the number of plots
+        classes = np.unique(y_train)
+        num_class = len(classes)
+        num_plots = num_class * 3
+
+        fig, axs = plt.subplots(num_plots, figsize=(15,4*num_plots))
+
+        viz_chunk = num_plots / 3
+        
+        for i in range(0, num_plots):
+            if i < (viz_chunk):
+                # Training data viz
+                ms = axs[i].matshow(X_train_sorted[y_train_sorted == classes[i]], cmap="seismic", aspect='auto')
+                ms.set_clim(lower_bound, upper_bound)
+            elif i < (viz_chunk*2):
+                # Test data viz
+                ms = axs[i].matshow(X_test_sorted[y_test_sorted == classes[i - num_class]], cmap="seismic", aspect='auto')
+                ms.set_clim(lower_bound, upper_bound)
+            else:
+                # Aug data viz
+                ms = axs[i].matshow(X_aug_sorted[y_aug_sorted == classes[i - num_class*2]], cmap="seismic", aspect='auto')
+                ms.set_clim(lower_bound, upper_bound)
+
+        # Location and size of colorbar: [coordinate1, coordinate2 inthe figure, colorbar width, height]
+        cax = fig.add_axes([0.94, 0.2, 0.02, 0.4])
+        
+        # Add colorbar
+        fig.colorbar(mappable=ms, cax=cax, extend='both')
+
+        # Show figure
+        plt.savefig(os.path.join(self.result_path, self.aug_name + 'Viz.png'))
 
     def classify_without_augmentation(self):
         with open(os.path.join(self.result_path, 'noAug.txt'), "w") as f:

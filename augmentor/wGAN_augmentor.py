@@ -81,7 +81,8 @@ def deepbiogen(exp : Experimentor, aug_rates : list, num_clusters : int=1, max_g
                         sample_interval=sample_interval)
 
         # Train a single WGAN
-        wgan.train()
+        if not os.path.exists(os.path.join(wgan.model_path, wgan.model_name + f'_e{num_epochs}_generator')):
+            wgan.train()
 
         # Max number of samples for each WGAN 
         n_samples_forEachGAN = int(max_aug_samples / (i+1))
