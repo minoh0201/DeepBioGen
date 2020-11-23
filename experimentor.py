@@ -47,7 +47,7 @@ class Experimentor(object):
         self.y_train = data.y_train
         self.y_test = data.y_test
 
-        # Augmentation holders
+        # Augmented data holders
         self.aug_name = None
         self.aug_rates = None
         self.X_augs = None
@@ -66,7 +66,7 @@ class Experimentor(object):
         self._select_feature()
 
         # Distribution
-        #self.draw_histogram(Xs=[self.X_train, self.X_test], Xs_labels=["X_train", "X_test"])
+        self.draw_histogram(Xs=[self.X_train, self.X_test], Xs_labels=["X_train", "X_test"])
 
         # Viz
         #self.visualize(X_train=self.X_train, y_train=self.y_train, X_test=self.X_test, y_test=self.y_test)
@@ -91,6 +91,7 @@ class Experimentor(object):
         for i in range(num_Xs):
             axs[i].hist(Xs[i].flatten(), bins='auto')
             axs[i].text(x=0.02, y=0.9, s=Xs_labels[i], transform=axs[i].transAxes)
+        if self.aug_name == None: self.aug_name = 'beforeAug'
         plt.savefig(os.path.join(self.result_path, self.aug_name + 'Dist.png'))
 
     def visualize(self, X_train, y_train, X_test, y_test, lower_bound=-5, upper_bound=5):

@@ -64,3 +64,111 @@ def load_T2D(train_data_filename=config.MARKER_T2D, test_data_filename=config.MA
     print(f"--- Loaded in {round(time.time() - start_time, 2)} seconds ---")
 
     return dc
+
+def load_ICB(train_matrices=config.ICB_TRAIN_MAT, 
+            train_labels=config.ICB_TRAIN_CLS, 
+            test_matrix=config.ICB_TEST_MAT, 
+            test_label=config.ICB_TEST_CLS,
+            t_cell_signatures=config.ICB_TCELL_SIG) -> DataContainer:
+    
+    # Time stamp
+    start_time = time.time()
+
+    cache_filename = os.path.join(os.getcwd(), 'data', '+'.join(train_matrices) + "-" + test_matrix + ".pkl")
+
+    # If not cached, cache data
+    if not os.path.exists(cache_filename):
+        print('caching...')
+
+        # Read training data
+        train_mat = []
+        train_cls = []
+        
+        # Read matrix files
+        for filename in train_matrices:
+            filepath = os.path.join(os.getcwd(), 'data', filename)
+            if os.path.isfile(filepath):
+                mat = pd.read_csv(filepath, sep=',', index_col=0)
+                # Remove duplicated genes
+                mat = mat[~mat.index.duplicated(keep='first')]
+                train_mat.append(mat)
+                
+            else:
+                print(f"FileNotFoundError: {filepath} does not exist")
+                exit()
+
+        # Read label files
+        for filename in train_labels:
+            filepath = os.path.join(os.getcwd(), 'data', filename)
+            if os.path.isfile(filepath):
+                train_cls.append(pd.read_csv(filepath, sep=',', index_col=0, header=None))
+            else:
+                print(f"FileNotFoundError: {filepath} does not exist")
+                exit()
+
+        # Read test data
+        filepath = os.path.join(os.getcwd(), 'data', test_matrix)
+        if os.path.isfile(filepath):
+            test_mat = pd.read_csv(filepath, sep=',', index_col=0)
+            test_mat = test_mat[~test_mat.index.duplicated(keep='first')]
+        else:
+            print(f"FileNotFoundError: {filepath} does not exist")
+            exit()
+
+        filepath = os.path.join(os.getcwd(), 'data', test_label)
+        if os.path.isfile(filepath):
+            test_cls = pd.read_csv(filepath, sep=',', index_col=0, header=None)
+        else:
+            print(f"FileNotFoundError: {filepath} does not exist")
+            exit()
+
+        # Get overlapping gene index
+        features = train_mat[0].index
+        for i in range(1, len(train_mat)):
+            features = features.intersection(train_mat[i].index)
+
+        features = features.intersection(test_mat.index).unique()
+
+        # Concatenate training data and leave only overlapping features
+        train_mat = pd.concat([x.loc[features] for x in train_mat], axis=1)
+        train_cls = pd.concat([y for y in train_cls], axis=0)
+
+        # Leave only overlapping features out in test data
+        test_mat = test_mat.loc[features]
+
+        # Covert FPKM into TPM
+        train_mat = train_mat / train_mat.sum() * 1000000
+        test_mat = test_mat / test_mat.sum() * 1000000
+
+        # log2(x+1) transform
+        train_mat = np.log2(train_mat + 1)
+        test_mat = np.log2(test_mat + 1)
+
+        # Read T cell signature file
+        filepath = os.path.join(os.getcwd(), 'data', t_cell_signatures)
+        if os.path.isfile(filepath):
+            t_cell_sig = pd.read_csv(filepath, sep=',', index_col=0, header=None)
+        else:
+            print(f"FileNotFoundError: {filepath} does not exist")
+            exit()
+
+        # Leave only features in T cell signatures
+        features = features.intersection(t_cell_sig.index).unique()
+        train_mat = train_mat.loc[features]
+        test_mat = test_mat.loc[features]
+
+        # Transpose matrix and transform pandas dataframe to numpy array
+        X_train = train_mat.T.values.astype(np.float64)
+        y_train = train_cls.values.astype(np.int).flatten()
+        X_test = test_mat.T.values.astype(np.float64)
+        y_test = test_cls.values.astype(np.int).flatten()
+        
+        dc = DataContainer(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test)
+        pickle.dump(dc, open(cache_filename, "wb"))
+
+    else:
+        dc = pickle.load(open(cache_filename, "rb"))
+
+    print(f"--- Loaded in {round(time.time() - start_time, 2)} seconds ---")
+
+    return dc

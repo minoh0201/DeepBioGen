@@ -32,6 +32,9 @@ if __name__ == "__main__":
     # Set augmentation rates to retrieve
     aug_rates = [0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
+    icb_data = data_loader.load_ICB()
+    run_exps(data=icb_data, exp_name="ICB", aug_rates=aug_rates)
+
     # T2D to WT2D
     t2d_data = data_loader.load_T2D()
     run_exps(data=t2d_data, exp_name="T2D_WT2D", aug_rates=aug_rates)
