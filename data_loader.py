@@ -158,9 +158,9 @@ def load_ICB(train_matrices=config.ICB_TRAIN_MAT,
         test_mat = test_mat.loc[features]
 
         # Transpose matrix and transform pandas dataframe to numpy array
-        X_train = train_mat.T.values.astype(np.float64)
+        X_train = train_mat.T.values.astype(np.float)
         y_train = train_cls.values.astype(np.int).flatten()
-        X_test = test_mat.T.values.astype(np.float64)
+        X_test = test_mat.T.values.astype(np.float)
         y_test = test_cls.values.astype(np.int).flatten()
         
         dc = DataContainer(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test)

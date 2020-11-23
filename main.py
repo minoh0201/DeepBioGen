@@ -1,3 +1,5 @@
+import argparse
+
 import data_loader
 from experimentor import DataContainer
 from experimentor import Experimentor
@@ -21,22 +23,33 @@ def run_exps(data : DataContainer, exp_name : str, aug_rates: list):
         exp.draw_histogram(Xs=[exp.X_train, exp.X_test, exp.X_augs[1]], Xs_labels=["X_train", "X_test", "X_aug"])
 
     # wGAN augmentation
-    exp = Experimentor(data=data, exp_name=exp_name)
-    wGAN_augmentor.deepbiogen(exp = exp, aug_rates=aug_rates, num_clusters=2, max_gans=10, num_epochs=6000, batch_size=128, sample_interval=2000)
-    exp.classify_with_wGAN_augmentation()
-    exp.visualize_aug(X_train=exp.X_train, y_train=exp.y_train, X_test=exp.X_test, y_test=exp.y_test, X_aug=exp.X_augs[5][1], y_aug=exp.y_augs[5][1])
-    exp.draw_histogram(Xs=[exp.X_train, exp.X_test, exp.X_augs[5][1]], Xs_labels=["X_train", "X_test", "X_aug"])
+    for i in range(1, 11):  # number of data clusters
+        exp = Experimentor(data=data, exp_name=exp_name)
+        wGAN_augmentor.deepbiogen(exp = exp, aug_rates=aug_rates, num_clusters=i, max_gans=10, num_epochs=6000, batch_size=128, sample_interval=2000)
+        exp.classify_with_wGAN_augmentation()
+    
+    #exp.visualize_aug(X_train=exp.X_train, y_train=exp.y_train, X_test=exp.X_test, y_test=exp.y_test, X_aug=exp.X_augs[5][1], y_aug=exp.y_augs[5][1])
+    #exp.draw_histogram(Xs=[exp.X_train, exp.X_test, exp.X_augs[5][1]], Xs_labels=["X_train", "X_test", "X_aug"])
 
 if __name__ == "__main__":
+
+    # Parse arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--data", help="dataset indicator (e.g. T2D_WT2D or ICB)", type=str, choices=["T2D_WT2D", "ICB"])
+
+    args = parser.parse_args()
+    print(args)
 
     # Set augmentation rates to retrieve
     aug_rates = [0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-    icb_data = data_loader.load_ICB()
-    run_exps(data=icb_data, exp_name="ICB", aug_rates=aug_rates)
+    # Load data according to argument
+    if args.data == 'ICB':
+        data = data_loader.load_ICB()
+    elif args.data == 'T2D_WT2D':
+        data = data_loader.load_T2D()
 
-    # T2D to WT2D
-    t2d_data = data_loader.load_T2D()
-    run_exps(data=t2d_data, exp_name="T2D_WT2D", aug_rates=aug_rates)
+    # Run experiments
+    run_exps(data=data, exp_name=args.data, aug_rates=aug_rates)
 
     print("End")

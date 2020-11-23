@@ -6,6 +6,7 @@ seed(0)
 
 import time
 import numpy as np
+from numpy.linalg import LinAlgError
 from experimentor import Experimentor
 from sklearn import mixture
 from sklearn.utils import shuffle
@@ -92,8 +93,12 @@ def gmm(exp : Experimentor, aug_rates : list):
     for i in range(len(class_labels)):
         gmm = mixture.GaussianMixture(n_components = np.argmin(gmm_BICs[i]), random_state=0, verbose=2)
         gmm.fit(exp.X_train[exp.y_train==class_labels[i], :])
-        # Sampling
-        gmm_sample, _ = gmm.sample(max_aug_samples_for_each_class)
+        try:
+            # Sampling
+            gmm_sample, _ = gmm.sample(max_aug_samples_for_each_class)
+        except LinAlgError:
+            gmm_sample, _ = gmm.sample(max_aug_samples_for_each_class)
+
         # Append samples and corresponding classes
         gmm_samples.append(gmm_sample)
         gmm_sample_classes.append(np.full(max_aug_samples_for_each_class, class_labels[i]).astype('int64'))
