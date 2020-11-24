@@ -20,6 +20,8 @@ from sklearn.metrics import f1_score
 from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import auc
 
+from sklearn.cluster import KMeans
+
 class DataContainer(object):
     def __init__(self, X_train=None, X_test=None, y_train=None, y_test=None):
         # Training and test data holders
@@ -69,6 +71,7 @@ class Experimentor(object):
         self.draw_histogram(Xs=[self.X_train, self.X_test], Xs_labels=["X_train", "X_test"])
 
         # Viz
+        self.visualize_wss()
         #self.visualize(X_train=self.X_train, y_train=self.y_train, X_test=self.X_test, y_test=self.y_test)
 
     def _standardize(self):
@@ -91,7 +94,8 @@ class Experimentor(object):
         for i in range(num_Xs):
             axs[i].hist(Xs[i].flatten(), bins='auto')
             axs[i].text(x=0.02, y=0.9, s=Xs_labels[i], transform=axs[i].transAxes)
-        if self.aug_name == None: self.aug_name = 'beforeAug'
+        if self.aug_name == None: 
+            self.aug_name = 'beforeAug'
         plt.savefig(os.path.join(self.result_path, self.aug_name + 'Dist.png'))
 
     def visualize(self, X_train, y_train, X_test, y_test, lower_bound=-5, upper_bound=5):
@@ -173,6 +177,25 @@ class Experimentor(object):
         # Show figure
         plt.savefig(os.path.join(self.result_path, self.aug_name + 'Viz.png'))
 
+    def visualize_wss(self):
+        # Helper func
+        def calculate_WSS(points, kmax):
+            sse = []
+            for k in range(1, kmax+1):
+                kmeans = KMeans(n_clusters = k, random_state=1).fit(points)
+                centroids = kmeans.cluster_centers_
+                pred_clusters = kmeans.predict(points)
+                curr_sse = 0
+                # calculate square of Euclidean distance of each point from its cluster center and add to current WSS
+                for i in range(len(points)):
+                    curr_center = centroids[pred_clusters[i]]
+                    curr_sse += (points[i, 0] - curr_center[0]) ** 2 + (points[i, 1] - curr_center[1]) ** 2
+                sse.append(curr_sse)
+            return sse
+        fig = plt.figure()
+        plt.plot([k for k in range(1, 10+1)], calculate_WSS(self.X_train.T, 10))
+        plt.savefig(os.path.join(self.result_path, 'WSS.png'))
+        
     def classify_without_augmentation(self):
         with open(os.path.join(self.result_path, 'noAug.txt'), "w") as f:
             # Write result header
