@@ -5,8 +5,6 @@ seed(0)
 from tensorflow import set_random_seed
 set_random_seed(0)
 
-import os
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
 import time
 
 import tensorflow as tf
