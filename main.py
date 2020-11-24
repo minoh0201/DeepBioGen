@@ -37,7 +37,7 @@ if __name__ == "__main__":
     # Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--data", help="dataset indicator (e.g. T2D_WT2D or ICB)", type=str, choices=["T2D_WT2D", "ICB"])
-    parser.add_argument("-gpu_card", "--cuda_visible_devices", help="Set enrironment variable 'CUDA_VISIBLE_DEVICES' to sepecify gpu card to be used", type=int, default=0)
+    parser.add_argument("-gpu_card", "--cuda_visible_devices", help="Set enrironment variable 'CUDA_VISIBLE_DEVICES' to sepecify gpu card to be used", type=str, default="0")
 
     args = parser.parse_args()
     print(args)
