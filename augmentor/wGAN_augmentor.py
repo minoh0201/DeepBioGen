@@ -5,6 +5,7 @@ seed(0)
 from tensorflow import set_random_seed
 set_random_seed(0)
 
+import os
 import time
 
 import tensorflow as tf
