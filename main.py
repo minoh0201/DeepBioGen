@@ -43,7 +43,7 @@ if __name__ == "__main__":
     print(args)
 
     # Set GPU Device number
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_card
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
 
     # Set augmentation rates to retrieve
     aug_rates = [0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
