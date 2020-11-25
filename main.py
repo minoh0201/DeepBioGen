@@ -37,13 +37,9 @@ if __name__ == "__main__":
     # Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--data", help="dataset indicator (e.g. T2D_WT2D or ICB)", type=str, choices=["T2D_WT2D", "ICB"])
-    parser.add_argument("-gpu_card", "--cuda_visible_devices", help="Set enrironment variable 'CUDA_VISIBLE_DEVICES' to sepecify gpu card to be used", type=str, default="0")
 
     args = parser.parse_args()
     print(args)
-
-    # Set GPU Device number
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
 
     # Set augmentation rates to retrieve
     aug_rates = [0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
