@@ -70,7 +70,7 @@ class Experimentor(object):
         cv=5
 
         self.classifiers = [
-            GridSearchCV(SVC(probability=True, random_state=0, cache_size=1024), param_grid=config.svm_hyper_parameters, cv=StratifiedKFold(cv, shuffle=True), scoring=scoring, n_jobs=n_jobs, verbose=1, ),
+            GridSearchCV(SVC(probability=True, random_state=0, cache_size=2048), param_grid=config.svm_hyper_parameters, cv=StratifiedKFold(cv, shuffle=True), scoring=scoring, n_jobs=n_jobs, verbose=1, ),
             GridSearchCV(RandomForestClassifier(n_jobs=n_jobs, random_state=0), param_grid=config.rf_hyper_parameters, cv=StratifiedKFold(cv, shuffle=True), scoring=scoring, n_jobs=n_jobs, verbose=1),
             GridSearchCV(MLPClassifier(random_state=0, max_iter=1000), param_grid=config.mlp_hyper_parameters, cv=StratifiedKFold(cv, shuffle=True), scoring=scoring, n_jobs=n_jobs, verbose=1)
         ]
