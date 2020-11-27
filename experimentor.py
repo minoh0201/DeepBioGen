@@ -278,6 +278,7 @@ class Experimentor(object):
             for g in range(max_gans):
                 for clf, clf_name in zip(self.classifiers, self.classifier_names):
                     for i in range(len(self.aug_rates)):
+                        print(f'aug_rate: {self.aug_rates[i]}, # of GANs: {g+1}')
                         clf.fit(self.X_train_augs[g][i], self.y_train_augs[g][i])
                         y_pred = clf.predict(self.X_test)
                         y_prob = clf.predict_proba(self.X_test)
