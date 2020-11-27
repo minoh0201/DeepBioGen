@@ -11,6 +11,8 @@ from sklearn.feature_selection import SelectFromModel
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import StratifiedKFold
 
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import accuracy_score
@@ -21,6 +23,11 @@ from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import auc
 
 from sklearn.cluster import KMeans
+
+from keras.models import Sequential, Model
+from keras.layers import Dense, Dropout
+
+import config
 
 class DataContainer(object):
     def __init__(self, X_train=None, X_test=None, y_train=None, y_test=None):
@@ -58,7 +65,17 @@ class Experimentor(object):
         self.y_train_augs = None
 
         # Classifiers
-        self.classifiers = [SVC(probability=True, random_state=0, gamma='scale'), RandomForestClassifier(random_state=0, n_estimators=100), MLPClassifier(random_state=0, hidden_layer_sizes=(128, 64, 32), max_iter=500)]
+        scoring='roc_auc'
+        n_jobs=-1
+        cv=5
+
+        self.classifiers = [
+            GridSearchCV(SVC(probability=True, random_state=0, cache_size=1024), param_grid=config.svm_hyper_parameters, cv=StratifiedKFold(cv, shuffle=True), scoring=scoring, n_jobs=n_jobs, verbose=1, ),
+            GridSearchCV(RandomForestClassifier(n_jobs=n_jobs, random_state=0), param_grid=config.rf_hyper_parameters, cv=StratifiedKFold(cv, shuffle=True), scoring=scoring, n_jobs=n_jobs, verbose=1),
+            GridSearchCV(MLPClassifier(random_state=0, max_iter=1000), param_grid=config.mlp_hyper_parameters, cv=StratifiedKFold(cv, shuffle=True), scoring=scoring, n_jobs=n_jobs, verbose=1)
+        ]
+
+        #self.classifiers = [SVC(probability=True, random_state=0, gamma='scale'), RandomForestClassifier(random_state=0, n_estimators=100), MLPClassifier(random_state=0, hidden_layer_sizes=(128, 64, 32), max_iter=500)]
         self.classifier_names = ["SVM", "RF", "NN"]
 
         # Standardization
@@ -198,11 +215,13 @@ class Experimentor(object):
         
     def classify_without_augmentation(self):
         with open(os.path.join(self.result_path, 'noAug.txt'), "w") as f:
+
             # Write result header
             f.write("Clf\tAUROC\tAUPRC\tACC  \tREC  \tPRE  \tF1  \n")
 
             for clf, clf_name in zip(self.classifiers, self.classifier_names):
                 clf.fit(self.X_train, self.y_train)
+                print(f'Best parameter on training set: {clf.best_params_}')
                 y_pred = clf.predict(self.X_test)
                 y_prob = clf.predict_proba(self.X_test)
 
@@ -228,6 +247,7 @@ class Experimentor(object):
 
             for clf, clf_name in zip(self.classifiers, self.classifier_names):
                 for i in range(len(self.aug_rates)):
+                    print(f'aug_rate: {self.aug_rates[i]}')
                     clf.fit(self.X_train_augs[i], self.y_train_augs[i])
                     y_pred = clf.predict(self.X_test)
                     y_prob = clf.predict_proba(self.X_test)
@@ -275,12 +295,3 @@ class Experimentor(object):
                         f.write(f"{g+1}\t{clf_name}\t{self.aug_rates[i]}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\n")
         
         print(f"--- Classified with {self.aug_name} augmentation in {round(time.time() - start_time, 2)} seconds ---")
-
-
-
-
-            
-
-        
-
-    
