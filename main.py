@@ -24,7 +24,7 @@ def run_exps(data : DataContainer, exp_name : str, aug_rates: list):
         exp.draw_histogram(Xs=[exp.X_train, exp.X_test, exp.X_augs[1]], Xs_labels=["X_train", "X_test", "X_aug"])
 
     # wGAN augmentation
-    for i in range(1, 6):  # number of data clusters
+    for i in range(1, 11):  # number of data clusters
         exp = Experimentor(data=data, exp_name=exp_name)
         wGAN_augmentor.deepbiogen(exp = exp, aug_rates=aug_rates, num_clusters=i, max_gans=10, num_epochs=6000, batch_size=128, sample_interval=2000)
         exp.classify_with_wGAN_augmentation()
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     print(args)
 
     # Set augmentation rates to retrieve
-    aug_rates = [0.5, 1, 2, 4, 8]
+    aug_rates = [0.5, 1, 2, 4, 8, 16]
 
     # Load data according to argument
     if args.data == 'ICB':
