@@ -1,7 +1,7 @@
 import os
 import time
+import copy
 import numpy as np
-
 import matplotlib.pyplot as plt
 
 from sklearn.preprocessing import StandardScaler
@@ -246,11 +246,16 @@ class Experimentor(object):
             f.write("Clf\tAugRate\tAUROC\tAUPRC\tACC  \tREC  \tPRE  \tF1  \n")
 
             for clf, clf_name in zip(self.classifiers, self.classifier_names):
+                # Get best params from training data
+                clf.fit(self.X_train, self.y_train)
+                best_est = copy.deepcopy(clf.best_estimator_)
+
                 for i in range(len(self.aug_rates)):
                     print(f'aug_rate: {self.aug_rates[i]}')
-                    clf.fit(self.X_train_augs[i], self.y_train_augs[i])
-                    y_pred = clf.predict(self.X_test)
-                    y_prob = clf.predict_proba(self.X_test)
+                    # Fit on augmented training data
+                    best_est.fit(self.X_train_augs[i], self.y_train_augs[i])
+                    y_pred = best_est.predict(self.X_test)
+                    y_prob = best_est.predict_proba(self.X_test)
 
                     precisions, recalls, _ = precision_recall_curve(self.y_test, y_prob[:, 1])
 
@@ -275,13 +280,18 @@ class Experimentor(object):
         with open(os.path.join(self.result_path, self.aug_name + f'Aug.txt'), "w") as f:
             # Write result header
             f.write("NumGANs\tClf  \tAugRate\tAUROC\tAUPRC\tACC  \tREC  \tPRE  \tF1  \n")
-            for g in range(max_gans):
-                for clf, clf_name in zip(self.classifiers, self.classifier_names):
+            for clf, clf_name in zip(self.classifiers, self.classifier_names):
+                # Get best params from training data
+                clf.fit(self.X_train, self.y_train)
+                best_est = copy.deepcopy(clf.best_estimator_)
+
+                for g in range(max_gans):
                     for i in range(len(self.aug_rates)):
                         print(f'aug_rate: {self.aug_rates[i]}, # of GANs: {g+1}')
-                        clf.fit(self.X_train_augs[g][i], self.y_train_augs[g][i])
-                        y_pred = clf.predict(self.X_test)
-                        y_prob = clf.predict_proba(self.X_test)
+                        # Fit on augmented training data
+                        best_est.fit(self.X_train_augs[g][i], self.y_train_augs[g][i])
+                        y_pred = best_est.predict(self.X_test)
+                        y_prob = best_est.predict_proba(self.X_test)
 
                         precisions, recalls, _ = precision_recall_curve(self.y_test, y_prob[:, 1])
 
