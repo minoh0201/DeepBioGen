@@ -42,7 +42,7 @@ if __name__ == "__main__":
     print(args)
 
     # Set augmentation rates to retrieve
-    aug_rates = [0.5, 1, 2, 4, 8, 16]
+    aug_rates = [0.5, 1, 2, 4, 8, 16, 32, 64]
 
     # Load data according to argument
     if args.data == 'ICB':
