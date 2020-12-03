@@ -318,7 +318,7 @@ class CWGANGP():
         return model
         
 
-    def train(self):
+    def train(self, show_progress=False):
         
         print(f'X_train shape: {self.X_train.shape}')
         
@@ -352,7 +352,8 @@ class CWGANGP():
             # If at save interval => save generated image samples
             if epoch % self.sample_interval == 0:
                 print ("%d [D loss: %f] [G loss: %f]" % (epoch, d_loss[0], g_loss))
-                #self.sample_images(epoch, self.X_train.shape[0])
+                if show_progress == True:
+                    self.sample_images(epoch, self.X_train.shape[0])
                 self.generator.save_weights(os.path.join(self.model_path, self.model_name + f'_e{epoch}_generator'), overwrite=True)
                 self.critic.save_weights(os.path.join(self.model_path, self.model_name + f'_e{epoch}_discriminator'), overwrite=True)
                 # with open('loss.log', 'w') as f:
@@ -367,7 +368,7 @@ class CWGANGP():
         
         gen_imgs = self.generator.predict([noise, labels])
         
-        #self.viz(gen_imgs.reshape((-1,self.X_train.shape[1])), labels)
+        self.viz(gen_imgs.reshape((-1,self.X_train.shape[1])), labels)
 
         #plt.savefig("images/mnist_%d.png" % epoch)
         #plt.close()
@@ -380,6 +381,22 @@ class CWGANGP():
         gen_imgs = self.generator.predict([noise, labels])
         #self.viz(gen_imgs.reshape((-1,self.X_train.shape[1])), labels)
         return gen_imgs.reshape((-1, self.X_train.shape[1])), labels
+
+    def viz(self, X, y, lim1 = -5, lim2 = 5):
+        idx = np.argsort(y)
+        X_sorted = X[idx]
+        y_sorted = y[idx]
+
+        def metviz(mat):
+            plt.figure(figsize=(20,5))
+            plt.matshow(mat, cmap="seismic", aspect='auto', fignum=1)
+            cax = plt.axes([0.96, 0.08, 0.02, 0.8])
+            plt.colorbar(cax=cax, extend='both')
+            plt.clim(lim1, lim2)
+            plt.show()
+
+        for cls in np.unique(y):
+            metviz(X_sorted[y_sorted == cls])
     
 
 ##############
