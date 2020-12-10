@@ -8,6 +8,9 @@ ICB_TRAIN_CLS = ["ICB_Hugo_cls.csv", "ICB_Riaz_cls.csv"]
 ICB_TEST_MAT = "ICB_Gide_mat.csv"
 ICB_TEST_CLS = "ICB_Gide_cls.csv"
 
+ICB_COMB_TEST_MAT = "ICB_Gide_comb_mat.csv"
+ICB_COMB_TEST_CLS = "ICB_Gide_comb_cls.csv"
+
 ICB_TCELL_SIG = "Tcell_signatures.csv"
 
 # Hyper-parameter grid for training classifiers
