@@ -49,6 +49,7 @@ if __name__ == "__main__":
     if args.data == 'ICB':
         data = data_loader.load_ICB()
     elif args.data == 'ICB_COMB':
+        # ICB Combination
         data = data_loader.load_ICB(train_matrices=config.ICB_TRAIN_MAT, train_labels=config.ICB_TRAIN_CLS, test_matrix=config.ICB_COMB_TEST_MAT, test_label=config.ICB_COMB_TEST_CLS, t_cell_signatures=config.ICB_TCELL_SIG)
     elif args.data == 'T2D_WT2D':
         data = data_loader.load_T2D()
