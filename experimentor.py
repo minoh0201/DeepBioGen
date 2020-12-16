@@ -2,6 +2,7 @@ import os
 import time
 import copy
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 from sklearn.preprocessing import StandardScaler
@@ -45,10 +46,13 @@ class Experimentor(object):
         # Create directory with experiment name
         self.result_path = os.path.join(os.getcwd(), 'results', exp_name)
         self.model_path = os.path.join(self.result_path, 'models')
+        self.augmentation_path = os.path.join(self.result_path, 'augmentations')
         if not os.path.exists(self.result_path):
             os.makedirs(self.result_path)
         if not os.path.exists(self.model_path):
             os.makedirs(self.model_path)
+        if not os.path.exists(self.augmentation_path):
+            os.makedirs(self.augmentation_path)
 
         # Training and test data holders
         self.X_train = data.X_train
@@ -90,6 +94,15 @@ class Experimentor(object):
         # Viz
         self.visualize_wss()
         #self.visualize(X_train=self.X_train, y_train=self.y_train, X_test=self.X_test, y_test=self.y_test)
+
+        # Save train and test data in augmentation directory
+        if not os.path.exists(os.path.join(self.augmentation_path, f'X_train.csv')) or not os.path.exists(os.path.join(self.augmentation_path, f'X_test.csv')):
+            pd.DataFrame(self.X_train).to_csv(os.path.join(self.augmentation_path, f'X_train.csv'))
+            pd.DataFrame(self.y_train).to_csv(os.path.join(self.augmentation_path, f'y_train.csv'))
+            pd.DataFrame(self.X_test).to_csv(os.path.join(self.augmentation_path, f'X_test.csv'))
+            pd.DataFrame(self.y_test).to_csv(os.path.join(self.augmentation_path, f'y_test.csv'))
+        
+        # End of __init__
 
     def _standardize(self):
         scaler = StandardScaler(with_mean=True, with_std=True)

@@ -36,6 +36,7 @@ import math
 import numpy as np
 from numpy.random import randint
 from numpy.random import randn
+import pandas as pd
 
 from experimentor import Experimentor
 
@@ -46,7 +47,7 @@ batch_size_global = None
 
 #############
 # Generate column-wise clustered samples using conditional Wasserstein GAN with gradient penalty
-def deepbiogen(exp : Experimentor, aug_rates : list, num_clusters : int=1, max_gans : int=1, num_epochs : int=6000, batch_size: int=128, sample_interval=2000):
+def deepbiogen(exp : Experimentor, aug_rates : list, num_clusters : int=1, max_gans : int=1, num_epochs : int=6000, batch_size: int=128, sample_interval=2000, save_all_data=False):
     # Time stamp
     start_time = time.time()
 
@@ -62,6 +63,14 @@ def deepbiogen(exp : Experimentor, aug_rates : list, num_clusters : int=1, max_g
     # Re-ordering features with clustering algorithm
     exp.X_train, order = kmeans_ordering(exp.X_train, num_clusters)
     exp.X_test = reorder_test(exp.X_test, order)
+
+    # Save training and test data as csv file
+    if(save_all_data):
+        pd.DataFrame(order).to_csv(os.path.join(exp.augmentation_path, exp.aug_name.split('_')[0] + f'_c{num_clusters}_X_order.csv'))
+        pd.DataFrame(exp.X_train).to_csv(os.path.join(exp.augmentation_path, exp.aug_name.split('_')[0] + f'_c{num_clusters}_X_train.csv'))
+        pd.DataFrame(exp.y_train).to_csv(os.path.join(exp.augmentation_path, exp.aug_name.split('_')[0] + f'_c{num_clusters}_y_train.csv'))
+        pd.DataFrame(exp.X_test).to_csv(os.path.join(exp.augmentation_path, exp.aug_name.split('_')[0] + f'_c{num_clusters}_X_test.csv'))
+        pd.DataFrame(exp.y_test).to_csv(os.path.join(exp.augmentation_path, exp.aug_name.split('_')[0] + f'_c{num_clusters}_y_test.csv'))
 
     # Fake sample holder
     pool_X_fakes = []
@@ -118,9 +127,14 @@ def deepbiogen(exp : Experimentor, aug_rates : list, num_clusters : int=1, max_g
             # Training data + Augmentation data
             X_train_augs_by_rates.append(X_temp)
             y_train_augs_by_rates.append(y_temp)
+            
             # Augmentation data alone
             X_augs_by_rates.append(X_temp[exp.X_train.shape[0]:])
             y_augs_by_rates.append(y_temp[exp.X_train.shape[0]:])
+            
+            if(save_all_data):
+                pd.DataFrame(X_temp[exp.X_train.shape[0]:]).to_csv(os.path.join(exp.augmentation_path, exp.aug_name.split('_')[0] + f'_r{aug_rate}_c{num_clusters}_g{i+1}_X_aug.csv'))
+                pd.DataFrame(y_temp[exp.X_train.shape[0]:]).to_csv(os.path.join(exp.augmentation_path, exp.aug_name.split('_')[0] + f'_r{aug_rate}_c{num_clusters}_g{i+1}_y_aug.csv'))
         
         # Training data + Augmentation data
         exp.X_train_augs.append(X_train_augs_by_rates)

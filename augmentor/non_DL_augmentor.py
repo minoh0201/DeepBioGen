@@ -4,15 +4,17 @@ seed(0)
 # from tensorflow import set_random_seed
 # set_random_seed(2)
 
+import os
 import time
 import numpy as np
+import pandas as pd
 from numpy.linalg import LinAlgError
 from experimentor import Experimentor
 from sklearn import mixture
 from sklearn.utils import shuffle
 from imblearn.over_sampling import SMOTE
 
-def random(exp : Experimentor, aug_rates : list):
+def random(exp : Experimentor, aug_rates : list, save_all_data=False): 
     # Time stamp
     start_time = time.time() 
 
@@ -47,13 +49,17 @@ def random(exp : Experimentor, aug_rates : list):
         exp.X_augs.append(X_fake[:num_aug_samples])
         exp.y_augs.append(y_fake[:num_aug_samples])
 
+        if(save_all_data):
+            pd.DataFrame(X_fake[:num_aug_samples]).to_csv(os.path.join(exp.augmentation_path, exp.aug_name + f'_r{aug_rate}_X_aug.csv'))
+            pd.DataFrame(y_fake[:num_aug_samples]).to_csv(os.path.join(exp.augmentation_path, exp.aug_name + f'_r{aug_rate}_y_aug.csv'))
+        
         # Training data + Augmentation data
         exp.X_train_augs.append(np.concatenate((exp.X_train, X_fake[:num_aug_samples])))
         exp.y_train_augs.append(np.concatenate((exp.y_train, y_fake[:num_aug_samples])))
 
     print(f"--- Augmented with {exp.aug_name} in {round(time.time() - start_time, 2)} seconds ---")
 
-def gmm(exp : Experimentor, aug_rates : list):
+def gmm(exp : Experimentor, aug_rates : list, save_all_data=False):
     # Time stamp
     start_time = time.time() 
 
@@ -120,6 +126,10 @@ def gmm(exp : Experimentor, aug_rates : list):
         # Augmentation data alone
         exp.X_augs.append(X_fake[:num_aug_samples])
         exp.y_augs.append(y_fake[:num_aug_samples])
+        
+        if(save_all_data):
+            pd.DataFrame(X_fake[:num_aug_samples]).to_csv(os.path.join(exp.augmentation_path, exp.aug_name + f'_r{aug_rate}_X_aug.csv'))
+            pd.DataFrame(y_fake[:num_aug_samples]).to_csv(os.path.join(exp.augmentation_path, exp.aug_name + f'_r{aug_rate}_y_aug.csv'))
 
         # Training data + Augmentation data
         exp.X_train_augs.append(np.concatenate((exp.X_train, X_fake[:num_aug_samples])))
@@ -127,7 +137,7 @@ def gmm(exp : Experimentor, aug_rates : list):
 
     print(f"--- Augmented with {exp.aug_name} in {round(time.time() - start_time, 2)} seconds ---")
         
-def smote(exp : Experimentor, aug_rates : list):
+def smote(exp : Experimentor, aug_rates : list, save_all_data=False):
     # Time stamp
     start_time = time.time() 
 
@@ -166,6 +176,10 @@ def smote(exp : Experimentor, aug_rates : list):
         # Augmentation data alone
         exp.X_augs.append(X_fake[:num_aug_samples])
         exp.y_augs.append(y_fake[:num_aug_samples])
+
+        if(save_all_data):
+            pd.DataFrame(X_fake[:num_aug_samples]).to_csv(os.path.join(exp.augmentation_path, exp.aug_name + f'_r{aug_rate}_X_aug.csv'))
+            pd.DataFrame(y_fake[:num_aug_samples]).to_csv(os.path.join(exp.augmentation_path, exp.aug_name + f'_r{aug_rate}_y_aug.csv'))
 
         # Training data + Augmentation data
         exp.X_train_augs.append(np.concatenate((exp.X_train, X_fake[:num_aug_samples])))
