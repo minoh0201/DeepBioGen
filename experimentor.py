@@ -92,7 +92,8 @@ class Experimentor(object):
         self.draw_histogram(Xs=[self.X_train, self.X_test], Xs_labels=["X_train", "X_test"])
 
         # Viz
-        self.visualize_wss()
+        self.visualize_featurewise_wss()
+        self.visualize_samplewise_wss()
         #self.visualize(X_train=self.X_train, y_train=self.y_train, X_test=self.X_test, y_test=self.y_test)
 
         # Save train and test data in augmentation directory
@@ -207,7 +208,7 @@ class Experimentor(object):
         # Show figure
         plt.savefig(os.path.join(self.result_path, self.aug_name + 'Viz.png'))
 
-    def visualize_wss(self):
+    def visualize_featurewise_wss(self):
         # Helper func
         def calculate_WSS(points, kmax):
             sse = []
@@ -224,7 +225,26 @@ class Experimentor(object):
             return sse
         fig = plt.figure()
         plt.plot([k for k in range(1, 10+1)], calculate_WSS(self.X_train.T, 10))
-        plt.savefig(os.path.join(self.result_path, 'WSS.png'))
+        plt.savefig(os.path.join(self.result_path, 'featurewise_WSS.png'))
+
+    def visualize_samplewise_wss(self):
+        # Helper func
+        def calculate_WSS(points, kmax):
+            sse = []
+            for k in range(1, kmax+1):
+                kmeans = KMeans(n_clusters = k, random_state=1).fit(points)
+                centroids = kmeans.cluster_centers_
+                pred_clusters = kmeans.predict(points)
+                curr_sse = 0
+                # calculate square of Euclidean distance of each point from its cluster center and add to current WSS
+                for i in range(len(points)):
+                    curr_center = centroids[pred_clusters[i]]
+                    curr_sse += (points[i, 0] - curr_center[0]) ** 2 + (points[i, 1] - curr_center[1]) ** 2
+                sse.append(curr_sse)
+            return sse
+        fig = plt.figure()
+        plt.plot([k for k in range(1, 10+1)], calculate_WSS(self.X_train, 10))
+        plt.savefig(os.path.join(self.result_path, 'samplewise_WSS.png'))
         
     def classify_without_augmentation(self):
         with open(os.path.join(self.result_path, 'noAug.txt'), "w") as f:

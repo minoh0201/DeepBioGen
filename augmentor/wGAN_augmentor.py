@@ -58,7 +58,7 @@ def deepbiogen(exp : Experimentor, aug_rates : list, num_clusters : int=1, max_g
     exp.aug_rates = aug_rates
 
     # The largest number of augmented samples
-    max_aug_samples = exp.X_train.shape[0] * aug_rates[-1]
+    max_aug_samples = int(exp.X_train.shape[0] * aug_rates[-1])
 
     # Re-ordering features with clustering algorithm
     exp.X_train, order = kmeans_ordering(exp.X_train, num_clusters)

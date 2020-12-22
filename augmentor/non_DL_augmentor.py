@@ -25,7 +25,7 @@ def random(exp : Experimentor, aug_rates : list, save_all_data=False):
     exp.aug_rates = aug_rates
 
     # The largest number of augmented samples
-    max_aug_samples = exp.X_train.shape[0] * aug_rates[-1]
+    max_aug_samples = int(exp.X_train.shape[0] * aug_rates[-1])
 
     # Statistics of training distribution
     mean = np.mean(exp.X_train, axis=0)
@@ -76,7 +76,7 @@ def gmm(exp : Experimentor, aug_rates : list, save_all_data=False):
     class_labels = np.unique(exp.y_train)
 
     # The largest number of augmented samples
-    max_aug_samples = exp.X_train.shape[0] * aug_rates[-1]
+    max_aug_samples = int(exp.X_train.shape[0] * aug_rates[-1])
     max_aug_samples_for_each_class = int(max_aug_samples/len(class_labels))
 
     # GMM augmentation
@@ -151,7 +151,7 @@ def smote(exp : Experimentor, aug_rates : list, save_all_data=False):
     class_labels = np.unique(exp.y_train)
 
     # The largest number of augmented samples
-    max_aug_samples = exp.X_train.shape[0] * aug_rates[-1]
+    max_aug_samples = int(exp.X_train.shape[0] * aug_rates[-1])
     max_aug_samples_for_each_class = int(max_aug_samples/len(class_labels))
 
     # Augment data using SMOTE
