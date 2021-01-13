@@ -6,6 +6,7 @@ from tensorflow import set_random_seed
 set_random_seed(0)
 
 import os
+import gc
 import time
 
 import tensorflow as tf
@@ -47,7 +48,7 @@ batch_size_global = None
 
 #############
 # Generate column-wise clustered samples using conditional Wasserstein GAN with gradient penalty
-def deepbiogen(exp : Experimentor, aug_rates : list, num_clusters : int=1, max_gans : int=1, num_epochs : int=6000, batch_size: int=128, sample_interval=2000, save_all_data=False):
+def deepbiogen(exp : Experimentor, aug_rates : list, num_clusters : int=1, max_gans : int=10, num_epochs : int=6000, batch_size: int=128, sample_interval=2000, save_all_data=False):
     # Time stamp
     start_time = time.time()
 
@@ -100,6 +101,11 @@ def deepbiogen(exp : Experimentor, aug_rates : list, num_clusters : int=1, max_g
         X_fake, y_fake = wgan.generate(n_samples=n_samples_forEachGAN, epoch=num_epochs)
         pool_X_fakes.append(X_fake)
         pool_y_fakes.append(y_fake)
+
+        # Free GPU memory
+        # del wgan
+        # K.clear_session()
+        # gc.collect()
 
     # Store augmentations
     exp.X_train_augs = []

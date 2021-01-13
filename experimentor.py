@@ -22,6 +22,7 @@ from sklearn.metrics import recall_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import auc
+from sklearn.metrics import roc_curve
 
 from sklearn.cluster import KMeans
 
@@ -250,7 +251,7 @@ class Experimentor(object):
         with open(os.path.join(self.result_path, 'noAug.txt'), "w") as f:
 
             # Write result header
-            f.write("Clf\tAUROC\tAUPRC\tACC  \tREC  \tPRE  \tF1  \n")
+            f.write("Clf\tAUROC\tAUPRC\tACC  \tREC  \tPRE  \tF1  \tPr_s\tPr_t\tHdiv\n")
 
             for clf, clf_name in zip(self.classifiers, self.classifier_names):
                 clf.fit(self.X_train, self.y_train)
@@ -267,8 +268,17 @@ class Experimentor(object):
                 rec = round(recall_score(self.y_test, y_pred), 3)
                 pre = round(precision_score(self.y_test, y_pred), 3)
                 f1 = round(f1_score(self.y_test, y_pred), 3)
+                
+                # H-divergence
+                y_prob_train = clf.predict_proba(self.X_train)
+                y_pred_train = self._pred_with_optimal_threshold(self.y_train, y_prob_train)
+                Pr_s = round(np.sum(y_pred_train) / len(y_pred_train), 3)
+                
+                y_prob_test = self._pred_with_optimal_threshold(self.y_test, y_prob)
+                Pr_t = round(np.sum(y_prob_test) / len(y_prob_test), 3)
+                Hdiv = round(abs(Pr_s - Pr_t), 3)
 
-                f.write(f"{clf_name}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\n")
+                f.write(f"{clf_name}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\t{Pr_s}\t{Pr_t}\t{Hdiv}\n")
 
     def classify_with_non_DL_augmentation(self):
          # Time stamp
@@ -276,7 +286,7 @@ class Experimentor(object):
 
         with open(os.path.join(self.result_path, self.aug_name + 'Aug.txt'), "w") as f:
             # Write result header
-            f.write("Clf\tAugRate\tAUROC\tAUPRC\tACC  \tREC  \tPRE  \tF1  \n")
+            f.write("Clf\tAugRate\tAUROC\tAUPRC\tACC  \tREC  \tPRE  \tF1  \tPr_s\tPr_t\tHdiv\n")
 
             for clf, clf_name in zip(self.classifiers, self.classifier_names):
                 # Get best params from training data
@@ -300,25 +310,37 @@ class Experimentor(object):
                     pre = round(precision_score(self.y_test, y_pred), 3)
                     f1 = round(f1_score(self.y_test, y_pred), 3)
 
-                    f.write(f"{clf_name}\t{self.aug_rates[i]}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\n")
+                    # H-divergence
+                    y_prob_train = clf.predict_proba(self.X_train)
+                    y_pred_train = self._pred_with_optimal_threshold(self.y_train, y_prob_train)
+                    Pr_s = round(np.sum(y_pred_train) / len(y_pred_train), 3)
+                    
+                    y_prob_test = self._pred_with_optimal_threshold(self.y_test, y_prob)
+                    Pr_t = round(np.sum(y_prob_test) / len(y_prob_test), 3)
+                    Hdiv = round(abs(Pr_s - Pr_t), 3)
+
+                    f.write(f"{clf_name}\t{self.aug_rates[i]}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\t{Pr_s}\t{Pr_t}\t{Hdiv}\n")
         
         print(f"--- Classified with {self.aug_name} augmentation in {round(time.time() - start_time, 2)} seconds ---")
 
-    def classify_with_wGAN_augmentation(self):
+    def classify_with_wGAN_augmentation(self, fixed_num_gans = None):
          # Time stamp
         start_time = time.time()
 
-        max_gans = len(self.X_augs)
+        if fixed_num_gans:
+            g_range = range(fixed_num_gans-1, fixed_num_gans)
+        else:
+            g_range = range(len(self.X_augs))
 
         with open(os.path.join(self.result_path, self.aug_name + f'Aug.txt'), "w") as f:
             # Write result header
-            f.write("NumGANs\tClf  \tAugRate\tAUROC\tAUPRC\tACC  \tREC  \tPRE  \tF1  \n")
+            f.write("NumGANs\tClf  \tAugRate\tAUROC\tAUPRC\tACC  \tREC  \tPRE  \tF1  \tPr_s\tPr_t\tHdiv\n")
             for clf, clf_name in zip(self.classifiers, self.classifier_names):
                 # Get best params from training data
                 clf.fit(self.X_train, self.y_train)
                 best_est = copy.deepcopy(clf.best_estimator_)
 
-                for g in range(max_gans):
+                for g in g_range:
                     for i in range(len(self.aug_rates)):
                         print(f'aug_rate: {self.aug_rates[i]}, # of GANs: {g+1}')
                         # Fit on augmented training data
@@ -336,6 +358,24 @@ class Experimentor(object):
                         pre = round(precision_score(self.y_test, y_pred), 3)
                         f1 = round(f1_score(self.y_test, y_pred), 3)
 
-                        f.write(f"{g+1}\t{clf_name}\t{self.aug_rates[i]}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\n")
+                        # H-divergence
+                        y_prob_train = clf.predict_proba(self.X_train)
+                        y_pred_train = self._pred_with_optimal_threshold(self.y_train, y_prob_train)
+                        Pr_s = round(np.sum(y_pred_train) / len(y_pred_train), 3)
+                        
+                        y_prob_test = self._pred_with_optimal_threshold(self.y_test, y_prob)
+                        Pr_t = round(np.sum(y_prob_test) / len(y_prob_test), 3)
+                        Hdiv = round(abs(Pr_s - Pr_t), 3)
+                        if Hdiv >= 0.144:
+                            print(f"{g+1}\t{clf_name}\t{self.aug_rates[i]}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\t{Pr_s}\t{Pr_t}\t{Hdiv}\n")
+
+                        f.write(f"{g+1}\t{clf_name}\t{self.aug_rates[i]}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\t{Pr_s}\t{Pr_t}\t{Hdiv}\n")
         
         print(f"--- Classified with {self.aug_name} augmentation in {round(time.time() - start_time, 2)} seconds ---")
+
+    def _pred_with_optimal_threshold(self, y_true, y_prob):
+        fpr, tpr, thresholds = roc_curve(y_true, y_prob[:, 1])
+        gmeans = np.sqrt(tpr * (1-fpr))
+        ix = np.argmax(gmeans)
+        y_pred_optima = y_prob[:, 1] > thresholds[ix]
+        return y_pred_optima
