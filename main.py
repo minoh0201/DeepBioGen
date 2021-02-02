@@ -77,6 +77,7 @@ if __name__ == "__main__":
     # Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--data", help="dataset indicator (e.g. T2D_WT2D or ICB)", type=str, choices=["T2D_WT2D", "ICB", "ICB_COMB"])
+    parser.add_argument("--elbow", help="Run elbow method only and quit", action='store_true')
     parser.add_argument("--cv", help="cross validation on training data only", action='store_true')
     parser.add_argument("-r", "--aug_rates", help="augmentation rates (e.g. 0.5,1,2,4)", type=str, default="0.5, 1, 2, 4, 8, 16, 32, 64, 128")
     parser.add_argument("--num_clusters", help="The number of visual clusters", type=int, default=None)
@@ -96,6 +97,11 @@ if __name__ == "__main__":
         data = data_loader.load_ICB(train_matrices=config.ICB_TRAIN_MAT, train_labels=config.ICB_TRAIN_CLS, test_matrix=config.ICB_COMB_TEST_MAT, test_label=config.ICB_COMB_TEST_CLS, t_cell_signatures=config.ICB_TCELL_SIG)
     elif args.data == 'T2D_WT2D':
         data = data_loader.load_T2D()
+
+    # Run elbow only
+    if args.elbow:
+        exp = Experimentor(data=data, exp_name=args.data)
+        exit()
 
     # Run experiments
     if args.cv:
