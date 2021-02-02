@@ -79,7 +79,7 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--data", help="dataset indicator (e.g. T2D_WT2D or ICB)", type=str, choices=["T2D_WT2D", "ICB", "ICB_COMB"])
     parser.add_argument("--elbow", help="Run elbow method only and quit", action='store_true')
     parser.add_argument("--cv", help="cross validation on training data only", action='store_true')
-    parser.add_argument("-r", "--aug_rates", help="augmentation rates (e.g. 0.5,1,2,4)", type=str, default="0.5, 1, 2, 4, 8, 16, 32, 64, 128")
+    parser.add_argument("-r", "--aug_rates", help="augmentation rates (e.g. 0.5,1,2,4)", type=str, default="0.5, 1, 2, 4, 8, 16, 32")
     parser.add_argument("--num_clusters", help="The number of visual clusters", type=int, default=None)
     parser.add_argument("--num_gans", help="The number of CWGANs", type=int, default=None)
 
