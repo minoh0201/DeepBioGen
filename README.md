@@ -44,3 +44,8 @@ python main.py -d ICB --elbow
 ```
 python main.py -d ICB --num_clusters 4 --num_gans 5
 ```
+*For type 2 diabetes prediction based on WGS microbiome marker profiles, change the dataset name to `T2D_WT2D` and repeat 1-3.
+```
+python main.py -d T2D_WT2D --elbow
+python main.py -d T2D_WT2D --num_clusters 6 --num_gans 8
+```
