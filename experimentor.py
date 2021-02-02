@@ -251,7 +251,7 @@ class Experimentor(object):
         with open(os.path.join(self.result_path, 'noAug.txt'), "w") as f:
 
             # Write result header
-            f.write("Clf\tAUROC\tAUPRC\tACC  \tREC  \tPRE  \tF1  \tPr_s\tPr_t\tHdiv\n")
+            f.write("Clf\tAUROC\tAUPRC\tACC  \tREC  \tPRE  \tF1  \n")
 
             for clf, clf_name in zip(self.classifiers, self.classifier_names):
                 clf.fit(self.X_train, self.y_train)
@@ -269,16 +269,7 @@ class Experimentor(object):
                 pre = round(precision_score(self.y_test, y_pred), 3)
                 f1 = round(f1_score(self.y_test, y_pred), 3)
                 
-                # H-divergence
-                y_prob_train = clf.predict_proba(self.X_train)
-                y_pred_train = self._pred_with_optimal_threshold(self.y_train, y_prob_train)
-                Pr_s = round(np.sum(y_pred_train) / len(y_pred_train), 3)
-                
-                y_pred_test = self._pred_with_optimal_threshold(self.y_test, y_prob)
-                Pr_t = round(np.sum(y_pred_test) / len(y_pred_test), 3)
-                Hdiv = round(abs(Pr_s - Pr_t), 3)
-
-                f.write(f"{clf_name}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\t{Pr_s}\t{Pr_t}\t{Hdiv}\n")
+                f.write(f"{clf_name}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\n")
 
     def classify_with_non_DL_augmentation(self):
          # Time stamp
@@ -286,7 +277,7 @@ class Experimentor(object):
 
         with open(os.path.join(self.result_path, self.aug_name + 'Aug.txt'), "w") as f:
             # Write result header
-            f.write("Clf\tAugRate\tAUROC\tAUPRC\tACC  \tREC  \tPRE  \tF1  \tPr_s\tPr_t\tHdiv\n")
+            f.write("Clf\tAugRate\tAUROC\tAUPRC\tACC  \tREC  \tPRE  \tF1  \n")
 
             for clf, clf_name in zip(self.classifiers, self.classifier_names):
                 # Get best params from training data
@@ -310,16 +301,7 @@ class Experimentor(object):
                     pre = round(precision_score(self.y_test, y_pred), 3)
                     f1 = round(f1_score(self.y_test, y_pred), 3)
 
-                    # H-divergence
-                    y_prob_train = clf.predict_proba(self.X_train)
-                    y_pred_train = self._pred_with_optimal_threshold(self.y_train, y_prob_train)
-                    Pr_s = round(np.sum(y_pred_train) / len(y_pred_train), 3)
-                    
-                    y_pred_test = self._pred_with_optimal_threshold(self.y_test, y_prob)
-                    Pr_t = round(np.sum(y_pred_test) / len(y_pred_test), 3)
-                    Hdiv = round(abs(Pr_s - Pr_t), 3)
-
-                    f.write(f"{clf_name}\t{self.aug_rates[i]}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\t{Pr_s}\t{Pr_t}\t{Hdiv}\n")
+                    f.write(f"{clf_name}\t{self.aug_rates[i]}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\n")
         
         print(f"--- Classified with {self.aug_name} augmentation in {round(time.time() - start_time, 2)} seconds ---")
 
@@ -334,7 +316,7 @@ class Experimentor(object):
 
         with open(os.path.join(self.result_path, self.aug_name + f'Aug.txt'), "w") as f:
             # Write result header
-            f.write("NumGANs\tClf  \tAugRate\tAUROC\tAUPRC\tACC  \tREC  \tPRE  \tF1  \tPr_s\tPr_t\tHdiv\n")
+            f.write("NumGANs\tClf  \tAugRate\tAUROC\tAUPRC\tACC  \tREC  \tPRE  \tF1  \n")
             for clf, clf_name in zip(self.classifiers, self.classifier_names):
                 # Get best params from training data
                 clf.fit(self.X_train, self.y_train)
@@ -358,18 +340,7 @@ class Experimentor(object):
                         pre = round(precision_score(self.y_test, y_pred), 3)
                         f1 = round(f1_score(self.y_test, y_pred), 3)
 
-                        # H-divergence
-                        y_prob_train = clf.predict_proba(self.X_train)
-                        y_pred_train = self._pred_with_optimal_threshold(self.y_train, y_prob_train)
-                        Pr_s = round(np.sum(y_pred_train) / len(y_pred_train), 3)
-                        
-                        y_pred_test = self._pred_with_optimal_threshold(self.y_test, y_prob)
-                        Pr_t = round(np.sum(y_pred_test) / len(y_pred_test), 3)
-                        Hdiv = round(abs(Pr_s - Pr_t), 3)
-                        if Hdiv >= 0.144:
-                            print(f"{g+1}\t{clf_name}\t{self.aug_rates[i]}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\t{Pr_s}\t{Pr_t}\t{Hdiv}\n")
-
-                        f.write(f"{g+1}\t{clf_name}\t{self.aug_rates[i]}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\t{Pr_s}\t{Pr_t}\t{Hdiv}\n")
+                        f.write(f"{g+1}\t{clf_name}\t{self.aug_rates[i]}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\n")
         
         print(f"--- Classified with {self.aug_name} augmentation in {round(time.time() - start_time, 2)} seconds ---")
 
