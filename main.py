@@ -12,19 +12,19 @@ from sklearn.model_selection import KFold
 
 def run_exps(data : DataContainer, exp_name : str, aug_rates: list, num_clusters=None, num_gans=None):
 
-    # # Baseline (no augmentation)
+    # Baseline (no augmentation)
     exp = Experimentor(data=data, exp_name=exp_name)
     exp.classify_without_augmentation()
 
-    # # Non-DL augmentations and the subsequent classifications and visualizations
-    # non_DL_augmentors = [non_DL_augmentor.random, non_DL_augmentor.gmm, non_DL_augmentor.smote]
+    # Non-DL augmentations and the subsequent classifications and visualizations
+    non_DL_augmentors = [non_DL_augmentor.random, non_DL_augmentor.gmm, non_DL_augmentor.smote]
 
-    # for augmentor in non_DL_augmentors:
-    #     exp = Experimentor(data=data, exp_name=exp_name)
-    #     augmentor(exp = exp, aug_rates=aug_rates, save_all_data=True)
-    #     exp.classify_with_non_DL_augmentation()
-    #     exp.visualize_aug(X_train=exp.X_train, y_train=exp.y_train, X_test=exp.X_test, y_test=exp.y_test, X_aug=exp.X_augs[1], y_aug=exp.y_augs[1])
-    #     exp.draw_histogram(Xs=[exp.X_train, exp.X_test, exp.X_augs[1]], Xs_labels=["X_train", "X_test", "X_aug"])
+    for augmentor in non_DL_augmentors:
+        exp = Experimentor(data=data, exp_name=exp_name)
+        augmentor(exp = exp, aug_rates=aug_rates, save_all_data=True)
+        exp.classify_with_non_DL_augmentation()
+        exp.visualize_aug(X_train=exp.X_train, y_train=exp.y_train, X_test=exp.X_test, y_test=exp.y_test, X_aug=exp.X_augs[1], y_aug=exp.y_augs[1])
+        exp.draw_histogram(Xs=[exp.X_train, exp.X_test, exp.X_augs[1]], Xs_labels=["X_train", "X_test", "X_aug"])
 
     # wGAN augmentation
     if num_clusters == None:
@@ -48,9 +48,6 @@ def run_exps(data : DataContainer, exp_name : str, aug_rates: list, num_clusters
                                 sample_interval=2000,
                                 save_all_data=True)
         exp.classify_with_wGAN_augmentation(fixed_num_gans=num_gans)
-    
-    # exp.visualize_aug(X_train=exp.X_train, y_train=exp.y_train, X_test=exp.X_test, y_test=exp.y_test, X_aug=exp.X_augs[5][1], y_aug=exp.y_augs[5][1])
-    # exp.draw_histogram(Xs=[exp.X_train, exp.X_test, exp.X_augs[5][1]], Xs_labels=["X_train", "X_test", "X_aug"])
 
     del exp
     del data

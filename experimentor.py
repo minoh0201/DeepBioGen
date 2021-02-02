@@ -274,8 +274,8 @@ class Experimentor(object):
                 y_pred_train = self._pred_with_optimal_threshold(self.y_train, y_prob_train)
                 Pr_s = round(np.sum(y_pred_train) / len(y_pred_train), 3)
                 
-                y_prob_test = self._pred_with_optimal_threshold(self.y_test, y_prob)
-                Pr_t = round(np.sum(y_prob_test) / len(y_prob_test), 3)
+                y_pred_test = self._pred_with_optimal_threshold(self.y_test, y_prob)
+                Pr_t = round(np.sum(y_pred_test) / len(y_pred_test), 3)
                 Hdiv = round(abs(Pr_s - Pr_t), 3)
 
                 f.write(f"{clf_name}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\t{Pr_s}\t{Pr_t}\t{Hdiv}\n")
@@ -315,8 +315,8 @@ class Experimentor(object):
                     y_pred_train = self._pred_with_optimal_threshold(self.y_train, y_prob_train)
                     Pr_s = round(np.sum(y_pred_train) / len(y_pred_train), 3)
                     
-                    y_prob_test = self._pred_with_optimal_threshold(self.y_test, y_prob)
-                    Pr_t = round(np.sum(y_prob_test) / len(y_prob_test), 3)
+                    y_pred_test = self._pred_with_optimal_threshold(self.y_test, y_prob)
+                    Pr_t = round(np.sum(y_pred_test) / len(y_pred_test), 3)
                     Hdiv = round(abs(Pr_s - Pr_t), 3)
 
                     f.write(f"{clf_name}\t{self.aug_rates[i]}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\t{Pr_s}\t{Pr_t}\t{Hdiv}\n")
@@ -363,8 +363,8 @@ class Experimentor(object):
                         y_pred_train = self._pred_with_optimal_threshold(self.y_train, y_prob_train)
                         Pr_s = round(np.sum(y_pred_train) / len(y_pred_train), 3)
                         
-                        y_prob_test = self._pred_with_optimal_threshold(self.y_test, y_prob)
-                        Pr_t = round(np.sum(y_prob_test) / len(y_prob_test), 3)
+                        y_pred_test = self._pred_with_optimal_threshold(self.y_test, y_prob)
+                        Pr_t = round(np.sum(y_pred_test) / len(y_pred_test), 3)
                         Hdiv = round(abs(Pr_s - Pr_t), 3)
                         if Hdiv >= 0.144:
                             print(f"{g+1}\t{clf_name}\t{self.aug_rates[i]}\t{auroc}\t{auprc}\t{acc}\t{rec}\t{pre}\t{f1}\t{Pr_s}\t{Pr_t}\t{Hdiv}\n")
