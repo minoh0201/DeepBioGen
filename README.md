@@ -40,7 +40,7 @@ python main.py -d ICB --elbow
 
 2. Move to results directory `../DeepBioGen/results/ICB`, and check `featurewise_WSS.png` and `samplewise_WSS.png` files to estimate # of visual clusters and # of GANs, respectively.
 
-3. Run experiment with the estimated parameters (e.g. # of visual clusters: 4; # of GANs: 5) and augmentation rates (e.g. 0.5, 1, 2, 4, 8, 16, 32).
+3. Run experiment with the estimated parameters (e.g. # of visual clusters: 4; # of GANs: 5).
 ```
-python main.py -d ICB -r 0.5,1,2,4,8,16,32 --num_clusters 4 --num_gans 5
+python main.py -d ICB --num_clusters 4 --num_gans 5
 ```
