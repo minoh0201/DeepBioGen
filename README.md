@@ -1,6 +1,6 @@
 # DeepBioGen
 
-A sequencing data augmentation procedure that establishes visual patterns from sequencing profiles and that generates realistic sequencing profiles based on conditional Wasserstein GAN capturing the visual patterns
+A sequencing profile augmentation procedure that establishes visual patterns from sequencing profiles and that generates realistic sequencing profiles based on conditional Wasserstein GAN capturing the visual patterns
 
 ## Starting guide
 Require GPU machine, git, Anaconda3, docker, docker image of `tensorflow/tensorflow:1.13.2-gpu-py3-jupyter`
