@@ -2,6 +2,9 @@
 
 A sequencing profile augmentation procedure that establishes visual patterns from sequencing profiles and that generates realistic sequencing profiles based on conditional Wasserstein GAN capturing the visual patterns
 
+![image](https://user-images.githubusercontent.com/19569318/117393744-c7912a00-aec2-11eb-9fd9-f5959945b1c7.png)
+
+
 ## Starting guide
 Require GPU machine, git, Anaconda3, docker, docker image of `tensorflow/tensorflow:1.13.2-gpu-py3-jupyter`
 
