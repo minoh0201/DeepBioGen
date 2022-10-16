@@ -52,3 +52,6 @@ python main.py -d ICB --num_clusters 4 --num_gans 5
 python main.py -d T2D_WT2D --elbow
 python main.py -d T2D_WT2D --num_clusters 6 --num_gans 8
 ```
+
+## Citation
+Oh, Min, and Liqing Zhang. "Generalizing predictions to unseen sequencing profiles via deep generative models." Scientific reports 12.1 (2022): 1-10.
